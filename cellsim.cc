@@ -311,3 +311,5 @@ int main( int argc, char *argv[] )
   }
 }
 //End
+
+// Mininet can connect to internet!
