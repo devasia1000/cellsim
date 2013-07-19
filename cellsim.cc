@@ -265,8 +265,8 @@ int main( int argc, char *argv[] )
   loss_rate = atof(argv[ 4 ]);
 
   /* Need to change these interface names too? */
-  PacketSocket internet_side( "eth0", string(), string( client_mac ) );
-  PacketSocket client_side( "eth1", string( client_mac ), string() );
+  PacketSocket internet_side( "cellsim-eth0", string(), string( client_mac ) );
+  PacketSocket client_side( "cellsim-eth1", string( client_mac ), string() );
 
   /* Read in schedule */
   uint64_t now = timestamp();
