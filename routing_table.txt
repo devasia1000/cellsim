@@ -1,0 +1,4 @@
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+10.0.0.2        0.0.0.0         255.255.255.255 UH    0      0        0 cellsim-eth1
+10.0.0.3        0.0.0.0         255.255.255.255 UH    0      0        0 cellsim-eth0
