@@ -142,7 +142,7 @@ if __name__ == '__main__':
     #net = TreeNet( depth=1, fanout=4 )
     #use own topo with mininet
     net = CellsimNet()
-
+    net.startTerms()
     # Configure and start NATted connectivity
     rootnode = connectToInternet( net )
     print "*** Hosts are running and should have internet connectivity"
