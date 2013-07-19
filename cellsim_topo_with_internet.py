@@ -9,14 +9,17 @@ Glen Gibb, February 2011
 (slight modifications by BL, 5/13)
 (more modifications by Devasia Manuel)
 """
- 
+
+from mininet.topo import Topo 
 from mininet.cli import CLI
 from mininet.log import lg, info
 from mininet.node import Node
 from mininet.topolib import TreeNet
 from mininet.util import quietRun
+from mininet.net import Mininet 
  
 #################################
+
 def startNAT( root, inetIntf='eth0', subnet='10.0/8' ):
     """Start NAT/forwarding between Mininet and external network
     root: node to access iptables from
@@ -93,7 +96,7 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
  
     # Start NAT and establish forwarding
     startNAT( root )
- 
+  
     # Establish routes from end hosts
     for host in network.hosts:
         host.cmd( 'ip route flush root 0/0' )
@@ -101,10 +104,45 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
         host.cmd( 'route add default gw', rootip )
  
     return root
- 
+
+# Custom topology class
+class MyTopo( Topo ):
+    "cellsim"
+
+    def __init__( self ):
+        "Create custom topo."
+
+        # Initialize topology
+        Topo.__init__( self )
+
+        # Add hosts and switches
+        server = self.addHost( 'server' )
+        cellsim = self.addHost( 'cellsim' )
+        client = self.addHost( 'client' )
+
+        serverSwitch=self.addSwitch('s1')
+        clientSwitch=self.addSwitch('s2')
+
+        # Add links
+        self.addLink( server, serverSwitch )
+        self.addLink( cellsim, serverSwitch)
+        self.addLink( client, clientSwitch )
+        self.addLink( cellsim, clientSwitch)
+
+topos = { 'cellsim': ( lambda: MyTopo() ) }
+
+def CellsimNet ( **kwargs ):
+    "Convenience function for returning cellsim topo"
+    topo = MyTopo()
+    return Mininet( topo, **kwargs )
+
 if __name__ == '__main__':
-    lg.setLogLevel( 'info')
-    net = TreeNet( depth=1, fanout=4 )
+    lg.setLogLevel( 'info')   
+    
+    #net = TreeNet( depth=1, fanout=4 )
+    #use own topo with mininet
+    net = CellsimNet()
+
     # Configure and start NATted connectivity
     rootnode = connectToInternet( net )
     print "*** Hosts are running and should have internet connectivity"
