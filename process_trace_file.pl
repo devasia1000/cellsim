@@ -1,4 +1,4 @@
-$file=`cat verizon3g-downlink.rx`;
+$file=`cat ${ARGV[0]}`;
 @lines=split("\n", $file);
 $counter=0;
 
