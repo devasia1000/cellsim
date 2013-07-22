@@ -264,7 +264,7 @@ int main( int argc, char *argv[] )
   client_mac = argv[ 3 ];
   loss_rate = atof(argv[ 4 ]);
 
-  /* Need to change these interface names too? */
+  /* changed these interface names */
   PacketSocket internet_side( "cellsim-eth0", string(), string( client_mac ) );
   PacketSocket client_side( "cellsim-eth1", string( client_mac ), string() );
 
