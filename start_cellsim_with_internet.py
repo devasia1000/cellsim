@@ -1,13 +1,9 @@
 #!/usr/bin/python
  
-"""
-Example to create a Mininet topology and connect it to the internet via NAT
-through eth0 on the host.
- 
+""" 
 Glen Gibb, February 2011
- 
-(slight modifications by BL, 5/13)
-(more modifications by Devasia Manuel)
+
+modified by Devasia Manuel for MIT's Alfalfa project
 """
 
 from mininet.topo import Topo 
@@ -19,6 +15,7 @@ from mininet.util import quietRun
 from mininet.net import Mininet
 
 import sys
+from time import sleep
  
 #################################
 
@@ -118,7 +115,7 @@ def setupRoutes(network):
 	    host.cmd("sudo route add 10.0.0.2 cellsim-eth1")
 	    host.cmd("sudo route add 10.0.0.3 cellsim-eth0")
 	    
-def startCellsim(network, username, uplink, downlink, lossRate):
+def startCellsimAndApache(network, username, uplink, downlink, lossRate):
 
     for host in network.hosts:
 	if host.name is "client":
@@ -127,14 +124,19 @@ def startCellsim(network, username, uplink, downlink, lossRate):
     for host in network.hosts:
         if host.name is "cellsim":
 	    # start cellsim
-            host.cmdPrint("sudo /home/"+username+"/cellsim/cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate)
+            host.cmd("/home/"+username+"/cellsim/cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate+" &")
+	    #host.cmdPrint("sudo cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate+"")
+	elif host.name is "server":
+	    # start apache on server
+	    host.cmd("service apache2 restart");
 
-def startChromium(net, username, videolink):
+
+def startChromium(network, username, videolink):
 
     for host in network.hosts:
 	if host.name is "client":
 	    #start chromium
-	    host.sendCmd("sudo su "+username+" -c ~/Desktop/src/start_test.pl "+videolink)
+	    host.cmdPrint("su "+username+" -c /home/"+username+"/Desktop/src/start_test.pl "+videolink)
 
 
 # Custom topology class
@@ -183,8 +185,7 @@ if __name__ == '__main__':
     downlink=arguments[3]
     lossrate=arguments[4]
     videolink=arguments[5]
- 
-    #net = TreeNet( depth=1, fanout=4 )
+
     #use own topo with mininet
     net = CellsimNet()
     net.startTerms()
@@ -197,7 +198,8 @@ if __name__ == '__main__':
     # setup routes for cellsim
     setupRoutes(net)
     # start cellsim
-    startCellsim(net, username, uplink, downlink, lossrate)
+    startCellsimAndApache(net, username, uplink, downlink, lossrate)
+    sleep(3)
     #start chromium
     startChromium(net, username, videolink)
 
