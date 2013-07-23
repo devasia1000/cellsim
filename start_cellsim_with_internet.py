@@ -16,7 +16,9 @@ from mininet.log import lg, info
 from mininet.node import Node
 from mininet.topolib import TreeNet
 from mininet.util import quietRun
-from mininet.net import Mininet 
+from mininet.net import Mininet
+
+import sys
  
 #################################
 
@@ -105,6 +107,36 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
  
     return root
 
+def setupRoutes(network):
+    for host in network.hosts:
+	if host.name is "cellsim":	    
+	    host.cmd("sudo ifconfig cellsim-eth1 10.0.0.5 up")
+	    # delete old routes
+            host.cmd("sudo route del -net 0.0.0.0 netmask 0.0.0.0 cellsim-eth0")
+            host.cmd("sudo route del -net 10.0.0.0 netmask 255.0.0.0 cellsim-eth0")
+	    # create new routes
+	    host.cmd("sudo route add 10.0.0.2 cellsim-eth1")
+	    host.cmd("sudo route add 10.0.0.3 cellsim-eth0")
+	    
+def startCellsim(network, username, uplink, downlink, lossRate):
+
+    for host in network.hosts:
+	if host.name is "client":
+	   host.setMAC("aa:aa:aa:aa:aa:aa")	
+
+    for host in network.hosts:
+        if host.name is "cellsim":
+	    # start cellsim
+            host.cmdPrint("sudo /home/"+username+"/cellsim/cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate)
+
+def startChromium(net, username, videolink):
+
+    for host in network.hosts:
+	if host.name is "client":
+	    #start chromium
+	    host.sendCmd("sudo su "+username+" -c ~/Desktop/src/start_test.pl "+videolink)
+
+
 # Custom topology class
 class MyTopo( Topo ):
     "cellsim"
@@ -128,6 +160,7 @@ class MyTopo( Topo ):
         self.addLink( cellsim, serverSwitch)
         self.addLink( client, clientSwitch )
         self.addLink( cellsim, clientSwitch)
+	
 
 topos = { 'cellsim': ( lambda: MyTopo() ) }
 
@@ -139,14 +172,35 @@ def CellsimNet ( **kwargs ):
 if __name__ == '__main__':
     lg.setLogLevel( 'info')   
     
+    # get arguments    
+    arguments=sys.argv
+    if len(arguments)!=6:
+	print "Usage: <username> <uplinkTraceFile> <downlinkTraceFile> <lossRate> <youtubeVideoLink>"
+	sys.exit(0)
+
+    username=arguments[1]
+    uplink=arguments[2]
+    downlink=arguments[3]
+    lossrate=arguments[4]
+    videolink=arguments[5]
+ 
     #net = TreeNet( depth=1, fanout=4 )
     #use own topo with mininet
     net = CellsimNet()
     net.startTerms()
     # Configure and start NATted connectivity
     rootnode = connectToInternet( net )
+    
     print "*** Hosts are running and should have internet connectivity"
     print "*** Type 'exit' or control-D to shut down network"
+
+    # setup routes for cellsim
+    setupRoutes(net)
+    # start cellsim
+    startCellsim(net, username, uplink, downlink, lossrate)
+    #start chromium
+    startChromium(net, username, videolink)
+
     CLI( net )
     # Shut down NAT
     stopNAT( rootnode )
