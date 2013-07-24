@@ -124,8 +124,7 @@ def startCellsimAndApache(network, username, uplink, downlink, lossRate):
 	if host.name is "client":
 	    # mininet's MAC() is buggy, we're going to parse the MAC address from ifconfig
 	    clientMAC=host.cmd("ifconfig client-eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'")	   
-	    clientMAC=clientMAC.replace("\n", "");
-	    print(clientMAC) 
+	    clientMAC=clientMAC.replace("\n", "") 
 
     for host in network.hosts:
         if host.name is "cellsim":
