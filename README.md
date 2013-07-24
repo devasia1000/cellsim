@@ -2,7 +2,7 @@ This is an automated version of Cellsim that plays a YouTube video, generates re
 and video resolutions as the video plays and prints log files to ~/Desktop/log. Cellsim requires the 
 following command line arguments:
 
-sudo python start_cellsim_with_internet.py <username> <uplinkTrace> <downlinkTrace> <lossRate> <youtubeVideoLink>
+sudo python start_cellsim_with_internet.py {username} {uplinkTrace} {downlinkTrace} {lossRate} {youtubeVideoLink}
 
 Cellsim also requires that Chromium (available from Devasia's github repo) be setup correctly and that all 
 directory paths are configured properly. Cellsim should be stored in ~/cellsim/ and Chromium should be stored in 
