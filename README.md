@@ -1,5 +1,5 @@
 This is an automated version of Cellsim that plays a YouTube video, generates real time graphs of stalls
-and video resolutions as the video plays and prints log files to ~/Desktop/log. Cellsim requires the 
+and video resolutions and prints log files to ~/Desktop/log. Cellsim requires the 
 following command line arguments:
 
 sudo python start_cellsim_with_internet.py {username} {uplinkTrace} {downlinkTrace} {lossRate} {youtubeVideoLink}
