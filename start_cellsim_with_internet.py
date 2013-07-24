@@ -136,7 +136,7 @@ def startChromium(network, username, videolink):
     for host in network.hosts:
 	if host.name is "client":
 	    #start chromium
-	    host.cmdPrint("su "+username+" -c /home/"+username+"/Desktop/src/start_test.pl "+videolink)
+	    host.cmdPrint("su -c '~/Desktop/src/start_test.pl "+videolink+"' - "+username)
 
 
 # Custom topology class
