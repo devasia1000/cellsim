@@ -105,30 +105,36 @@ def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
     return root
 
 def setupRoutes(network):
+        
     for host in network.hosts:
 	if host.name is "cellsim":	    
 	    host.cmd("sudo ifconfig cellsim-eth1 10.0.0.5 up")
 	    # delete old routes
-            host.cmd("sudo route del -net 0.0.0.0 netmask 0.0.0.0 cellsim-eth0")
-            host.cmd("sudo route del -net 10.0.0.0 netmask 255.0.0.0 cellsim-eth0")
+            #host.cmd("sudo route del -net 0.0.0.0 netmask 0.0.0.0 cellsim-eth0")
+            #host.cmd("sudo route del -net 10.0.0.0 netmask 255.0.0.0 cellsim-eth0")
 	    # create new routes
-	    host.cmd("sudo route add 10.0.0.2 cellsim-eth1")
-	    host.cmd("sudo route add 10.0.0.3 cellsim-eth0")
+	    #host.cmd("sudo route add 10.0.0.2 cellsim-eth1")
+	    #host.cmd("sudo route add 10.0.0.3 cellsim-eth0")
 	    
-def startCellsimAndApache(network, username, uplink, downlink, lossRate):
+def startCellsimAndApache(network, username, uplink, downlink, lossRate):	
 
+    # find the client's MAC address and pass it to cellsimi
+    clientMAC="";
     for host in network.hosts:
 	if host.name is "client":
-	   host.setMAC("aa:aa:aa:aa:aa:aa")	
+	    # mininet's MAC() is buggy, we're going to parse the MAC address from ifconfig
+	    clientMAC=host.cmd("ifconfig client-eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'")	   
+	    clientMAC=clientMAC.replace("\n", "");
+	    print(clientMAC) 
 
     for host in network.hosts:
         if host.name is "cellsim":
 	    # start cellsim
-            host.cmd("/home/"+username+"/cellsim/cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate+" &")
-	    #host.cmdPrint("sudo cellsim "+uplink+" "+downlink+" "+"aa:aa:aa:aa:aa:aa"+" "+lossRate+"")
+            host.sendCmd("nohup ./cellsim "+uplink+" "+downlink+" "+clientMAC+" "+lossRate+" >/tmp/cellsim-stdout 2>/tmp/cellsim-stderr &")
+	    host.waitOutput()
 	elif host.name is "server":
 	    # start apache on server
-	    host.cmd("service apache2 restart");
+	    host.cmd("service apache2 restart")
 
 
 def startChromium(network, username, videolink):
