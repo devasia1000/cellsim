@@ -71,6 +71,7 @@ def fixNetworkManager( root, intf ):
     # hopefully this won't disconnect you
     root.cmd( 'service network-manager restart' )
  
+#For remote playback
 def connectToInternet( network, switch='s1', rootip='10.254', subnet='10.0/8'):
     """Connect the network to the internet
        switch: switch to connect to root namespace
