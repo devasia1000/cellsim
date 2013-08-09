@@ -117,7 +117,7 @@ def setupRoutes(network):
 	    #host.cmd("sudo route add 10.0.0.2 cellsim-eth1")
 	    #host.cmd("sudo route add 10.0.0.3 cellsim-eth0")
 	    
-def startCellsimAndApache(network, username, uplink, downlink, lossRate):	
+def startCellsimAndYouTubePlayback(network, username, uplink, downlink, lossRate):	
 
     # find the client's MAC address and pass it to cellsimi
     clientMAC="";
@@ -125,16 +125,19 @@ def startCellsimAndApache(network, username, uplink, downlink, lossRate):
 	if host.name is "client":
 	    # mininet's MAC() is buggy, we're going to parse the MAC address from ifconfig
 	    clientMAC=host.cmd("ifconfig client-eth0 | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'")	   
-	    clientMAC=clientMAC.replace("\n", "") 
+	    clientMAC=clientMAC.replace("\n", "")
+            host.cmd("sudo service dnsmasq restart")
+	    host.cmd("sudo /etc/init.d/nscd restart")
 
     for host in network.hosts:
         if host.name is "cellsim":
 	    # start cellsim
             host.sendCmd("nohup ./cellsim "+uplink+" "+downlink+" "+clientMAC+" "+lossRate+" >/tmp/cellsim-stdout 2>/tmp/cellsim-stderr &")
 	    host.waitOutput()
+
 	elif host.name is "server":
-	    # start apache on server
-	    host.cmd("service apache2 restart")
+	    #start youtube_playback on server
+	    host.cmd("nohup sudo java -jar /home/devasia/youtube_playback/dist/youtube_playback.jar >/tmp/youtube_playback-stdout 2>/tmp/youtube_playback-stderr &");
 
 
 def startChromium(network, username, videolink):
@@ -194,22 +197,22 @@ if __name__ == '__main__':
 
     #use own topo with mininet
     net = CellsimNet()
+    net.start()
     net.startTerms()
     # Configure and start NATted connectivity
-    rootnode = connectToInternet( net )
+    #rootnode = connectToInternet( net )
     
-    print "*** Hosts are running and should have internet connectivity"
+    print "*** Hosts are running"
     print "*** Type 'exit' or control-D to shut down network"
-
     # setup routes for cellsim
     setupRoutes(net)
     # start cellsim
-    startCellsimAndApache(net, username, uplink, downlink, lossrate)
-    sleep(3)
+    startCellsimAndYouTubePlayback(net, username, uplink, downlink, lossrate)
+    sleep(5)
     #start chromium
     startChromium(net, username, videolink)
 
     CLI( net )
     # Shut down NAT
-    stopNAT( rootnode )
+    #stopNAT( rootnode )
     net.stop()
