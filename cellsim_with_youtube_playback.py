@@ -16,6 +16,7 @@ from mininet.net import Mininet
 
 import sys
 from time import sleep
+from os.path import expanduser
  
 #################################
 
@@ -137,7 +138,7 @@ def startCellsimAndYouTubePlayback(network, username, uplink, downlink, lossRate
 
 	elif host.name is "server":
 	    #start youtube_playback on server
-	    host.cmd("nohup sudo java -jar /home/devasia/youtube_playback/dist/youtube_playback.jar >/tmp/youtube_playback-stdout 2>/tmp/youtube_playback-stderr &");
+	    host.cmd("nohup sudo java "+expanduser("~")+"/youtube_playback/Main >/tmp/youtube_playback-stdout 2>/tmp/youtube_playback-stderr &");
 
 
 def startChromium(network, username, videolink):
@@ -145,7 +146,7 @@ def startChromium(network, username, videolink):
     for host in network.hosts:
 	if host.name is "client":
 	    #start chromium
-	    host.cmdPrint("su -c '~/Desktop/src/start_test.pl "+videolink+"' - "+username)
+	    host.cmdPrint("su -c '"+expanduser("~")+"/src/start_test.pl "+videolink+"' - "+username)
 
 
 # Custom topology class
@@ -208,7 +209,7 @@ if __name__ == '__main__':
     setupRoutes(net)
     # start cellsim
     startCellsimAndYouTubePlayback(net, username, uplink, downlink, lossrate)
-    sleep(5)
+    sleep(10)
     #start chromium
     startChromium(net, username, videolink)
 
