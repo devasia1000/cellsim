@@ -2,6 +2,8 @@
 #include <vector>
 #include <poll.h>
 #include <assert.h>
+#include <sys/types.h> //For getpid()
+#include <unistd.h>    //For getpid()
 
 #include "socket.hh"
 #include "hist.hh"
